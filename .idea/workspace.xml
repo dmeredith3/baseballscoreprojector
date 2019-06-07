@@ -13,8 +13,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ScoreProjector.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="247">
-              <caret line="284" column="35" selection-start-line="284" selection-start-column="35" selection-end-line="284" selection-end-column="35" />
+            <state relative-caret-position="1543">
+              <caret line="157" lean-forward="true" selection-start-line="157" selection-end-line="157" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
@@ -25,8 +25,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/park factors.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5423">
-              <caret line="322" column="19" selection-start-line="322" selection-start-column="19" selection-end-line="322" selection-end-column="19" />
+            <state relative-caret-position="180">
+              <caret line="200" column="19" selection-start-line="200" selection-start-column="13" selection-end-line="200" selection-end-column="19" />
             </state>
           </provider>
         </entry>
@@ -34,8 +34,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/functions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="233">
-              <caret line="65" column="4" selection-start-line="65" selection-start-column="4" selection-end-line="65" selection-end-column="4" />
+            <state relative-caret-position="238">
+              <caret line="113" column="42" selection-start-line="113" selection-start-column="42" selection-end-line="113" selection-end-column="42" />
               <folding>
                 <element signature="e#0#47#0" expanded="true" />
               </folding>
@@ -50,6 +50,7 @@
       <find>gamesSta</find>
       <find>print</find>
       <find>time_url</find>
+      <find>colora</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -67,10 +68,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-18" />
-    <option name="y" value="-18" />
-    <option name="width" value="3876" />
-    <option name="height" value="2196" />
+    <option name="x" value="4890" />
+    <option name="y" value="315" />
+    <option name="width" value="384" />
+    <option name="height" value="160" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -153,12 +154,12 @@
       <updated>1559744768439</updated>
       <workItem from="1559744773232" duration="8000" />
       <workItem from="1559744782714" duration="22000000" />
-      <workItem from="1559916623064" duration="17161000" />
+      <workItem from="1559916623064" duration="23896000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="39169000" />
+    <option name="totallyTimeSpent" value="45904000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -170,15 +171,15 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-6" y="-6" width="1292" height="651" extended-state="6" />
+    <frame x="3832" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.16747573" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.110341154" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.3078394" />
-      <window_info anchor="bottom" id="Debug" order="3" visible="true" weight="0.28107074" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.3575298" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32936078" />
@@ -198,19 +199,8 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/ScoreProjector.py</url>
-          <line>265</line>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Score_Projector$Score_Projector.coverage" NAME="Score Projector Coverage Results" MODIFIED="1559936523584" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Score_Projector$Score_Projector.coverage" NAME="Score Projector Coverage Results" MODIFIED="1559943172503" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/__init__.py" />
@@ -230,15 +220,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/park factors.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5423">
-          <caret line="322" column="19" selection-start-line="322" selection-start-column="19" selection-end-line="322" selection-end-column="19" />
+        <state relative-caret-position="180">
+          <caret line="200" column="19" selection-start-line="200" selection-start-column="13" selection-end-line="200" selection-end-column="19" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/functions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="233">
-          <caret line="65" column="4" selection-start-line="65" selection-start-column="4" selection-end-line="65" selection-end-column="4" />
+        <state relative-caret-position="238">
+          <caret line="113" column="42" selection-start-line="113" selection-start-column="42" selection-end-line="113" selection-end-column="42" />
           <folding>
             <element signature="e#0#47#0" expanded="true" />
           </folding>
@@ -247,8 +237,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ScoreProjector.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="284" column="35" selection-start-line="284" selection-start-column="35" selection-end-line="284" selection-end-column="35" />
+        <state relative-caret-position="1543">
+          <caret line="157" lean-forward="true" selection-start-line="157" selection-end-line="157" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
           </folding>

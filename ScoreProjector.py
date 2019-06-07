@@ -7,6 +7,10 @@ import requests, statsapi
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
+dates = {'2019-05-01','2019-05-02','2019-05-03','2019-05-04','2019-05-05','2019-05-06','2019-05-07','2019-05-08','2019-05-09','2019-05-10','2019-05-11','2019-05-12','2019-05-13','2019-05-14','2019-05-15','2019-05-16','2019-05-17',
+         '2019-05-18','2019-05-19','2019-05-20','2019-05-21','2019-05-22','2019-05-23','2019-05-24','2019-05-25','2019-05-26','2019-05-27','2019-05-28','2019-05-29','2019-05-30','2019-05-31','2019-06-01','2019-06-02','2019-06-03',
+         '2019-06-04','2019-06-05','2019-06-06'}
+
 all_teams = {'Arizona Diamondbacks', 'Atlanta Braves','Baltimore Orioles', 'Boston Red Sox', 'Chicago Cubs', 'Chicago White Sox', 'Cincinnati Reds', 'Cleveland Indians',
              'Colorado Rockies', 'Detroit Tigers', 'Houston Astros', 'Kansas City Royals', 'Los Angeles Angels', 'Los Angeles Dodgers', 'Miami Marlins', 'Milwaukee Brewers',
              'Minnesota Twins', 'New York Mets', 'New York Yankees', 'Oakland Athletics', 'Philadelphia Phillies', 'Pittsburgh Pirates', 'San Diego Padres', 'San Francisco Giants',
@@ -60,6 +64,104 @@ def getTeamLineup(team_name):
 def getProbPitchers():
     probPitchers = getAllPitchers(all_teams)
     return(jsonify({'Probable Pitchers': probPitchers}))
+
+@app.route('/scorepredictions/may', methods=['GET'])
+def predscoresmay():
+    correct = []
+    num_right = 0
+    total_num_games = 0
+    for date in dates:
+        schedule_url_date = schedule_url
+        if date != "":
+            schedule_url_date += "&date=" + date
+        get_schedule = requests.get(schedule_url_date)
+        schedule = get_schedule.json()
+        num_games = schedule['dates'][0]['totalGames']
+        total_num_games += num_games
+        games = []
+        game_num = 0
+        while game_num < num_games:
+            home_team = getGame(game_num, 'home', schedule)
+            away_team = getGame(game_num, 'away', schedule)
+            home_lineup = getLineup(home_team, schedule, game_num, 'home')
+            home_pitcher = getPitcher(home_team, schedule, game_num, 'home')
+            away_lineup = getLineup(away_team, schedule, game_num, 'away')
+            away_pitcher = getPitcher(away_team, schedule, game_num, 'away')
+            if home_lineup == None or home_lineup == "" or away_lineup == "" or away_lineup == None or home_pitcher == "" or away_pitcher == "":
+                if home_lineup == "":
+                    home_lineup = "No lineup yet, please check again later"
+                if away_lineup == "":
+                    away_lineup = "No lineup yet, please check again later"
+                new_game = [{"Away": {away_team: away_lineup}}, {"Home":{home_team: home_lineup}}]
+                games.append({"Game" + str(game_num + 1): new_game})
+                game_num += 1
+                total_num_games -= 1
+            else:
+                home_pitcher_id = str(home_pitcher[home_team]['id'])
+                away_pitcher_id = str(away_pitcher[away_team]['id'])
+                home_team_fip = calcTeamFip(home_pitcher_id, home_team)
+                away_team_fip = calcTeamFip(away_pitcher_id, away_team)
+                home_pitcher_hand = getPitchHand(home_pitcher_id)
+                away_pitcher_hand = getPitchHand(away_pitcher_id)
+
+                home_player_num = 0
+                home_runs = 0
+                home_team_exp_score = []
+                home_players = []
+                while home_player_num < 9:
+                    home_player_scores = {}
+                    player_id = home_lineup[home_team][home_player_num]['id']
+                    player_name = home_lineup[home_team][home_player_num]['fullName']
+                    expRuns = calcRuns(player_id, home_player_num, home_team, home_team, away_pitcher_hand)
+                    home_runs += expRuns
+                    home_player_scores["player_exp_runs"] = expRuns
+                    home_player_scores["player_name"] = player_name
+                    home_players.append(home_player_scores)
+                    home_player_num += 1
+                home_runs = home_runs * away_team_fip / league_avr_FIP
+                home_team_total = {home_team: home_runs}
+                home_team_exp_score.append(home_team_total)
+                home_team_exp_score.append({'players': home_players})
+
+                away_player_num = 0
+                away_runs = 0
+                away_team_exp_score = []
+                away_players = []
+                while away_player_num < 9:
+                    away_player_scores = {}
+                    player_id = away_lineup[away_team][away_player_num]['id']
+                    player_name = away_lineup[away_team][away_player_num]['fullName']
+                    expRuns = calcRuns(player_id, away_player_num, away_team, home_team, home_pitcher_hand)
+                    away_runs += expRuns
+                    away_player_scores["player_exp_runs"] = expRuns
+                    away_player_scores["player_name"] = player_name
+                    away_players.append(away_player_scores)
+                    away_player_num += 1
+                away_runs = away_runs * home_team_fip / league_avr_FIP
+                away_team_total = {
+                    "team_name": away_team,
+                    "team_prediction": away_runs}
+                away_team_exp_score.append(away_team_total)
+                away_team_exp_score.append({'players:': away_players})
+
+                #new_game = {"away": away_team_exp_score}, {"home": home_team_exp_score}
+                #games.append({f"game_{game_num + 1}": new_game})
+
+                if home_runs > away_runs:
+                    num_right += checkResult(game_num, 'home', schedule_url_date)
+                    total_num_games -= checkComplete(game_num, 'home', schedule_url_date)
+                    print("Number Correct: " + str(num_right) + " Total Number: " + str(total_num_games))
+                else:
+                    num_right += checkResult(game_num, 'away', schedule_url_date)
+                    total_num_games -= checkComplete(game_num, 'away', schedule_url_date)
+                    print("Number Correct: " + str(num_right) + " Total Number: " + str(total_num_games))
+
+                game_num += 1
+        total_games = {"Total Games": total_num_games}
+        correct_games = {"Number of Correct Games": num_right}
+    correct.append(total_games)
+    correct.append(correct_games)
+    return jsonify(correct)
 
 @app.route('/scorepredictions/<string:date>', methods=['GET'])
 def predscores(date):
@@ -166,23 +268,24 @@ def getHome():
 
 @app.route('/hometeam/players', methods=['POST'])
 def addHomePlayer():
-    player = request.get_json()
+    players = request.get_json()["players"]
     global num_home_players
-    if num_home_players < 9:
-        if statsapi.lookup_player(player) != [] and statsapi.lookup_player(player) != None:
-            new_player = {}
-            player_id = str(statsapi.lookup_player(player)[0]['id'])
-            player_team = str(statsapi.lookup_team(statsapi.lookup_player(player)[0]['currentTeam']['id'])[0]['name'])
-            new_player["player_id"] = player_id
-            new_player["player_name"] = player
-            new_player["player_team"] = player_team
-            home_players.append(new_player)
-            num_home_players += 1
-            return jsonify({'home_players' : home_players})
+    for player in players:
+        if num_home_players < 9:
+            if statsapi.lookup_player(player) != [] and statsapi.lookup_player(player) != None:
+                new_player = {}
+                player_id = str(statsapi.lookup_player(player)[0]['id'])
+                player_team = str(statsapi.lookup_team(statsapi.lookup_player(player)[0]['currentTeam']['id'])[0]['name'])
+                new_player["player_id"] = player_id
+                new_player["player_name"] = player
+                new_player["player_team"] = player_team
+                home_players.append(new_player)
+                num_home_players += 1
+            else:
+                return f"{player} not found."
         else:
-            return f"{player} not found."
-    else:
-        return "Home Team can only have 9 players."
+            return "Home Team can only have 9 players."
+    return jsonify(home_players)
 
 @app.route('/hometeam/pitcher', methods=['POST'])
 def addHomePitcher():
@@ -220,16 +323,16 @@ def addHomeBullpen():
     else:
         return "Home Team can only have 1 bullpen"
 
-@app.route('/hometeam/deleteplayer/<string:name>', methods=['DELETE'])
-def deleteHomePlayer(name):
+@app.route('/hometeam/players/<string:id>', methods=['DELETE'])
+def deleteHomePlayer(id):
     global num_home_players
-    for i,q in enumerate(home_players):
-      if q == name:
-        del home_players[i]
-        num_home_players -= 1
+    for player in home_players:
+        if player['player_id'] == str(id):
+            home_players.remove(player)
+            num_home_players -= 1
     return jsonify({'home_players' : home_players})
 
-@app.route('/awayteam/deletepitcher', methods=['DELETE'])
+@app.route('/awayteam/pitcher', methods=['DELETE'])
 def deleteHomePitcher():
     global num_home_pitchers
     for i,q in enumerate(home_pitcher):
@@ -237,7 +340,7 @@ def deleteHomePitcher():
     num_home_pitchers = 0
     return jsonify({'home_pitcher' : home_pitcher})
 
-@app.route('/awayteam/deletebullpen', methods=['DELETE'])
+@app.route('/awayteam/bullpen', methods=['DELETE'])
 def deleteHomeBullpen():
     global num_home_bullpens
     for i,q in enumerate(home_bullpen):
@@ -245,7 +348,7 @@ def deleteHomeBullpen():
     num_home_bullpens = 0
     return jsonify({'home_bullpen' : home_bullpen})
 
-@app.route('/hometeam/deleteall', methods=['DELETE'])
+@app.route('/hometeam/players', methods=['DELETE'])
 def deleteAllHome():
     global num_home_players
     for i,q in enumerate(home_players):
@@ -264,7 +367,6 @@ def getAway():
 def addAwayPlayer():
     players = request.get_json()["players"]
     global num_away_players
-    response_players = []
     for player in players:
         if num_away_players < 9:
             if statsapi.lookup_player(player) != [] and statsapi.lookup_player(player) != None:
@@ -276,13 +378,11 @@ def addAwayPlayer():
                 new_player["player_team"] = player_team
                 away_players.append(new_player)
                 num_away_players += 1
-                #return jsonify({'away_players': away_players})
-                response_players.append(new_player)
             else:
                 return f"{player} not found."
         else:
             return "Away Team can only have 9 players."
-    return jsonify(response_players)
+    return jsonify(away_players)
 
 
 @app.route('/awayteam/pitcher', methods=['POST'])
@@ -321,16 +421,16 @@ def addAwayBullpen():
     else:
         return "Away Team can only have 1 bullpen"
 
-@app.route('/awayteam/deleteplayer/<string:name>', methods=['DELETE'])
-def deleteAwayPlayer(name):
-    global num_home_players
-    for i,q in enumerate(away_players):
-      if q == name:
-        del away_players[i]
-        num_away_players -= 1
+@app.route('/awayteam/players/<string:id>', methods=['DELETE'])
+def deleteAwayPlayer(id):
+    global num_away_players
+    for player in away_players:
+        if player['player_id'] == str(id):
+            away_players.remove(player)
+            num_away_players -= 1
     return jsonify({'away_players' : away_players})
 
-@app.route('/awayteam/deletepitcher', methods=['DELETE'])
+@app.route('/awayteam/pitcher', methods=['DELETE'])
 def deleteAwayPitcher():
     global num_away_pitchers
     for i,q in enumerate(away_pitcher):
@@ -338,7 +438,7 @@ def deleteAwayPitcher():
     num_away_pitchers = 0
     return jsonify({'away_pitcher' : away_pitcher})
 
-@app.route('/awayteam/deletebullpen', methods=['DELETE'])
+@app.route('/awayteam/bullpen', methods=['DELETE'])
 def deleteAwayBullpen():
     global num_away_bullpens
     for i,q in enumerate(away_bullpen):
@@ -346,7 +446,7 @@ def deleteAwayBullpen():
     num_away_bullpens = 0
     return jsonify({'away_bullpen' : away_bullpen})
 
-@app.route('/awayteam/deleteall', methods=['DELETE'])
+@app.route('/awayteam/players', methods=['DELETE'])
 def deleteAllAway():
     global num_away_players
     for i,q in enumerate(away_players):
@@ -395,58 +495,62 @@ def calcscores():
     elif num_away_bullpens != 1:
         return "Number of away bullpens must equal 1."
     else:
-            games = []
-            home = ballpark['ballpark'][0]
-            home_pitcher_id = str(home_pitcher['id'])
-            away_pitcher_id = str(away_pitcher['id'])
-            home_team_fip = calcTeamFip(home_pitcher_id, home_bullpen)
-            away_team_fip = calcTeamFip(away_pitcher_id, away_bullpen)
+            games = {}
+            home = ballpark[0]['ballpark']
+            home_pitcher_id = str(home_pitcher[0]['player_id'])
+            away_pitcher_id = str(away_pitcher[0]['player_id'])
+            home_team_bullpen = home_bullpen[0]['team_name']
+            away_team_bullpen = away_bullpen[0]['team_name']
+            home_team_fip = calcTeamFip(home_pitcher_id, home_team_bullpen)
+            away_team_fip = calcTeamFip(away_pitcher_id, away_team_bullpen)
             home_pitcher_hand = getPitchHand(home_pitcher_id)
             away_pitcher_hand = getPitchHand(away_pitcher_id)
 
             home_player_num = 0
             home_runs = 0
             home_team_exp_score = []
-            home_players = []
+            return_home_players = []
             while home_player_num < 9:
                 home_player_scores = {}
                 player_id = home_players[home_player_num]['player_id']
                 player_name = home_players[home_player_num]['player_name']
                 team = home_players[home_player_num]['player_team']
-                expRuns = calcRuns(player_id, home_player_num, team, home, away_pitcher_hand)
+                expRuns = calcRuns(player_iscored, home_player_num, team, home, away_pitcher_hand) * away_team_fip / league_avr_FIP
+                print(expRuns)
+                print(player_id)
                 home_runs += expRuns
                 home_player_scores["player_exp_runs"] = expRuns
                 home_player_scores["player_name"] = player_name
-                home_players.append(home_player_scores)
+                return_home_players.append(home_player_scores)
                 home_player_num += 1
-            home_runs = home_runs * away_team_fip / league_avr_FIP
             home_team_total = {
                 "team_name": home_team,
                 "team_prediction": home_runs}
             home_team_exp_score.append(home_team_total)
-            home_team_exp_score.append({'players': home_players})
+            home_team_exp_score.append({'players': return_home_players})
 
             away_player_num = 0
             away_runs = 0
             away_team_exp_score = []
-            away_players = []
+            return_away_players = []
             while away_player_num < 9:
                 away_player_scores = {}
-                player_id =away_players[away_player_num]['player_id']
+                player_id = away_players[away_player_num]['player_id']
                 player_name = away_players[away_player_num]['player_name']
                 team = away_players[away_player_num]['player_team']
-                expRuns = calcRuns(player_id, away_player_num, team, home, home_pitcher_hand)
+                expRuns = calcRuns(player_id, away_player_num, team, home, home_pitcher_hand) * home_team_fip / league_avr_FIP
+                print(expRuns)
+                print(player_id)
                 away_runs += expRuns
                 away_player_scores["player_exp_runs"] = expRuns
                 away_player_scores["player_name"] = player_name
-                away_players.append(away_player_scores)
+                return_away_players.append(away_player_scores)
                 away_player_num += 1
-            away_runs = away_runs * home_team_fip / league_avr_FIP
             away_team_total = {
                 "team_name": away_team,
                 "team_prediction": away_runs}
             away_team_exp_score.append(away_team_total)
-            away_team_exp_score.append({'players': away_players})
+            away_team_exp_score.append({'players': return_away_players})
 
             games["Predicted Score"] = {"away": away_team_exp_score}, {"home": home_team_exp_score}
 

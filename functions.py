@@ -112,7 +112,7 @@ def calcRuns(playerID, batting_pos, team, home_team, pitcher_hand):
 
     get_player_stats = requests.get(base_url + playerID + hitting_url)
     player_stats = get_player_stats.json()
-    if 'splits' in player_stats['stats']:
+    if player_stats['stats'] != [] and 'splits' in player_stats['stats'][0]:
         player_BB = player_stats['stats'][0]['splits'][0]['stat']['baseOnBalls']
         player_HBP = player_stats['stats'][0]['splits'][0]['stat']['hitByPitch']
         player_1B = player_stats['stats'][0]['splits'][0]['stat']['hits'] - player_stats['stats'][0]['splits'][0]['stat']['doubles'] - player_stats['stats'][0]['splits'][0]['stat']['triples'] - player_stats['stats'][0]['splits'][0]['stat']['homeRuns']
@@ -123,7 +123,10 @@ def calcRuns(playerID, batting_pos, team, home_team, pitcher_hand):
         player_IBB = player_stats['stats'][0]['splits'][0]['stat']['intentionalWalks']
         player_SF = player_stats['stats'][0]['splits'][0]['stat']['sacFlies']
         player_wOBA_PA = player_AB + player_BB - player_IBB + player_SF + player_HBP
-        player_wOBA = (player_BB * wOBA_BB + player_HBP * wOBA_HBP + player_1B * (pf_1B / hf_1B) * wOBA_1B + player_2B * (pf_2B / hf_2B) * wOBA_2B + player_3B * (pf_3B / hf_3B) * wOBA_3B + player_HR * (pf_HR / hf_HR) * wOBA_HR) / player_wOBA_PA
+        if player_wOBA_PA == 0:
+            player_wOBA = 0
+        else:
+            player_wOBA = (player_BB * wOBA_BB + player_HBP * wOBA_HBP + player_1B * (pf_1B / hf_1B) * wOBA_1B + player_2B * (pf_2B / hf_2B) * wOBA_2B + player_3B * (pf_3B / hf_3B) * wOBA_3B + player_HR * (pf_HR / hf_HR) * wOBA_HR) / player_wOBA_PA
     else:
         player_wOBA_PA = 0
         if player_pos == 1:
