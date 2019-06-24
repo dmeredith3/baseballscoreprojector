@@ -144,6 +144,12 @@ def calcRuns(playerID, batting_pos, team, home_team, pitcher_hand):
     player_exp_runs = player_r_PA * avr_PA_game[batting_pos]
     return float(player_exp_runs)
 
+# def calcOutcome(playerID, pitcherID, team, home_team, id_on_first, id_on_second, id_on_third, outs, runs):
+
+
+
+
+
 def calcTeamFip(playerID, team):
     team_info = statsapi.lookup_team(team)
     jsonify(team_info)
